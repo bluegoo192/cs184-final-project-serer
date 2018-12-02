@@ -71,16 +71,43 @@ router.post('/api/v1/addMember', async function (req, res, next) {
       }
     }
   };
-  rekognition.indexFaces(params, function (err, data) {
-    if (err) {
-      res.sendStatus(500);
-      console.log(err);
+  try {
+    const response = await rekognition.indexFaces(params).promise();
+    if (response.FaceRecords.length > 1) { // too many faces
+      // Send a friendly error message
+      res.send({
+        userError: true,
+        message: `Too many faces in your picture (${response.FaceRecords.length} detected).  Please only send one face.`
+      });
+      // Delete the faces from the collection
+      const FaceIds = [];
+      response.FaceRecords.forEach(record => FaceIds.push(record.Face.FaceId));
+      console.log(FaceIds)
+      rekognition.deleteFaces({
+        CollectionId: MEMBER_COLLECTION_ID,
+        FaceIds,
+      }, function (err, data) {
+        if (err) console.error(err);
+        if (data.DeletedFaces.length !== response.FaceRecords.length) {
+          console.error("Didn't delete all faces.");
+          console.error(response);
+        }
+      });
+    } else if (response.FaceRecords.length == 0) {
+      res.send({
+        userError: true,
+        message: "No faces detected.  Please try again"
+      });
     } else {
-      console.log(data);
-      res.send(data);
+      res.send({
+        faceId: response.FaceRecords[0].Face.FaceId
+      });
     }
-  })
-})
+  } catch (err) {
+    console.error(err);
+    res.sendStatus(500);
+  }
+});
 
 router.post('/api/v1/checkFace', async function (req, res, next) {
   // Check input

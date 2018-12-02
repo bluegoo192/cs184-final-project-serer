@@ -1,5 +1,12 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  h1 CS184 Final project
+  h2 API Guide (v1)
+  h3 Responses
+  p There are 4 possible responses from an API endpoint:
+  ul
+    li Data where userError is false or undefined.  This indicates a successful query, and varies from endpoint to endpoint
+    li Data where userError is true.  This occurs when the user of the app does something wrong (like trying to add a picture of a blank wall as a member).  These responses will also contain a message attribute, which is a user-friendly description of the error.  You can show this message to the end-user.
+    li A 500 response.  This happens if something is wrong with the server setup (like if the AWS credentials are corrupted).  If you get one of these, try again.  If you get 2 in a row, something is seriously wrong so check the server logs.
+    li A 400 response.  This means the input was malformed.  Probably a problem client code; check the API spec again

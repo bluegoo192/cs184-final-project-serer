@@ -40,15 +40,16 @@ router.post('/createCollection', async function (req, res, next) {
 
 router.post('/addMember', async function (req, res, next) {
   // Check input
-  if (!req.files || !req.files.face || !req.files.face.data || !req.body.memberId) {
+  if (!req.files || !req.files.face || !req.files.face.data) {
     res.sendStatus(400);
     return;
   }
 
   // Add image to S3
+  const Key = uuid();  // generate a unique key for this image
   const uploadParams = {
     Bucket: S3_BUCKET_NAME,
-    Key: req.body.memberId,
+    Key,
     Body: req.files.face.data
   }
   try {
@@ -63,11 +64,10 @@ router.post('/addMember', async function (req, res, next) {
   const params = {
     CollectionId: MEMBER_COLLECTION_ID,
     DetectionAttributes: [],
-    ExternalImageId: req.body.memberId,
     Image: {
       S3Object: {
         Bucket: S3_BUCKET_NAME,
-        Name: req.body.memberId
+        Name: Key
       }
     }
   };

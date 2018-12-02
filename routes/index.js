@@ -26,7 +26,7 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
-router.post('/createCollection', async function (req, res, next) {
+router.post('/api/v1/createCollection', async function (req, res, next) {
     rekognition.createCollection({CollectionId: MEMBER_COLLECTION_ID}, function (err,data) {
       if (err) {
         console.log(err);
@@ -38,7 +38,7 @@ router.post('/createCollection', async function (req, res, next) {
     })
 });
 
-router.post('/addMember', async function (req, res, next) {
+router.post('/api/v1/addMember', async function (req, res, next) {
   // Check input
   if (!req.files || !req.files.face || !req.files.face.data) {
     res.sendStatus(400);
@@ -82,7 +82,7 @@ router.post('/addMember', async function (req, res, next) {
   })
 })
 
-router.post('/checkFace', async function (req, res, next) {
+router.post('/api/v1/checkFace', async function (req, res, next) {
   // Check input
   if (!req.files.face || !req.files.face.data) {
     res.sendStatus(400);

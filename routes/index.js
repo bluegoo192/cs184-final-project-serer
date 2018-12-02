@@ -4,9 +4,20 @@ const aws = require('aws-sdk');
 const uuid = require('uuid/v4');
 
 // AWS setup
-aws.config.update({region: 'us-west-2'});
-const s3 = new aws.S3();
-const rekognition = new aws.Rekognition();
+if (process.env.CS184_AWS_KEY_ID == null || process.env.CS184_AWS_SECRET_KEY == null) {
+  console.error("Missing AWS credentials in config");
+}
+aws.config.update({
+  region: 'us-west-2'
+});
+const s3 = new aws.S3({
+  accessKeyId: process.env.CS184_AWS_KEY_ID,
+  secretAccessKey: process.env.CS184_AWS_SECRET_KEY,
+});
+const rekognition = new aws.Rekognition({
+  accessKeyId: process.env.CS184_AWS_KEY_ID,
+  secretAccessKey: process.env.CS184_AWS_SECRET_KEY,
+});
 const S3_BUCKET_NAME = 'cs184-faces-2';
 const MEMBER_COLLECTION_ID = 'cs184-members';
 

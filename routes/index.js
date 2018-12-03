@@ -111,7 +111,7 @@ router.post('/api/v1/addMember', async function (req, res, next) {
 
 router.post('/api/v1/checkFace', async function (req, res, next) {
   // Check input
-  if (!req.files.face || !req.files.face.data) {
+  if (!req.files || !req.files.face || !req.files.face.data) {
     res.sendStatus(400);
     return;
   }

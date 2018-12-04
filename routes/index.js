@@ -26,6 +26,14 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
+const check = (target, properties) => {
+  const valid = true;
+  properties.forEach(prop => {
+    if (target[prop] == null) valid = false;
+  });
+  return valid;
+}
+
 router.post('/api/v1/createCollection', async function (req, res, next) {
     rekognition.createCollection({CollectionId: MEMBER_COLLECTION_ID}, function (err,data) {
       if (err) {

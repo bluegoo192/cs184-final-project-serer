@@ -4,6 +4,7 @@ const aws = require('aws-sdk');
 const uuid = require('uuid/v4');
 const db = require('../wrappers/db.js');
 const cache = require('../wrappers/redis.js');
+const bcrypt = require('bcrypt');
 
 // AWS setup
 if (process.env.CS184_AWS_KEY_ID == null || process.env.CS184_AWS_SECRET_KEY == null) {
@@ -46,6 +47,28 @@ router.post('/api/v1/createCollection', async function (req, res, next) {
         res.sendStatus(200);
       }
     })
+});
+
+router.post('/api/v1/createOrg', async function (req, res, next) {
+  const valid = check(req.body, ['name', 'email', 'password']);
+  if (!valid) {
+    res.sendStatus(400);
+    return;
+  }
+  const hash = await bcrypt.hash(req.body.password, 10);
+  const q = 'INSERT INTO Orgs (name, email, password_hash) VALUES ($1, $2, $3) RETURNING *';
+  const values = [
+    req.body.name,
+    req.body.email,
+    hash
+  ];
+  try {
+    const response = await db.pool.query(q, values);
+    res.send(response.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.sendStatus(500);
+  }
 });
 
 router.post('/api/v1/addMember', async function (req, res, next) {
@@ -119,8 +142,8 @@ router.post('/api/v1/addMember', async function (req, res, next) {
         req.body.firstName,
         req.body.lastName
       ];
-      const response = await pool.query(q, values);
-      res.send(response.rows[0]);
+      const dbResponse = await db.pool.query(q, values);
+      res.send(dbResponse.rows[0]);
     }
   } catch (err) {
     console.error(err);

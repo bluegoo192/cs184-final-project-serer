@@ -10,6 +10,7 @@ block content
     li Data where userError is true.  This occurs when the user of the app does something wrong (like trying to add a picture of a blank wall as a member).  These responses will also contain a message attribute, which is a user-friendly description of the error.  You can show this message to the end-user.
     li A 500 response.  This happens if something is wrong with the server setup (like if the AWS credentials are corrupted).  If you get one of these, try again.  If you get 2 in a row, something is seriously wrong so check the server logs.
     li A 400 response.  This means the input was malformed.  Probably a problem client code; check the API spec again
+  h4 NOTE: your OrgId MUST be valid or you will receive a 500 response on most requests
   h4 Endpoints
   p All endpoints are POST requests unless otherwise specified.  All inputs should be sent as raw JSON data unless otherwise specified
   p When I describe the 'response' part of an endpoint, I'm describing a SUCCESSFUL response. For errors, refer to the response types above
@@ -32,5 +33,26 @@ block content
         li lastName
         li orgId
       p Success Response
+      p The member's full entry in the SQL database.  JSON object with the fields:
       ul
-        li an id for the member's face
+        li id
+        li face_id
+        li org_id
+        li email
+        li first_name
+        li last_name
+        li external_id (external id is not used at this time)
+    li
+      h4 /api/v1/createOrg
+      p Request should contain
+      ul
+        li email
+        li name
+        li password
+      p Success response
+      p The Org's full entry in the SQL database.  JSON object with the fields:
+      ul
+        li id
+        li name
+        li email
+        li password_hash

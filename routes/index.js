@@ -27,7 +27,7 @@ router.get('/', function(req, res, next) {
 });
 
 const check = (target, properties) => {
-  const valid = true;
+  let valid = true;
   properties.forEach(prop => {
     if (target[prop] == null) valid = false;
   });
@@ -48,7 +48,8 @@ router.post('/api/v1/createCollection', async function (req, res, next) {
 
 router.post('/api/v1/addMember', async function (req, res, next) {
   // Check input
-  if (!req.files || !req.files.face || !req.files.face.data) {
+  const validBody = check(req.body, ['orgId', 'email', 'firstName', 'lastName']);
+  if (!req.files || !req.files.face || !req.files.face.data || !validBody) {
     res.sendStatus(400);
     return;
   }

@@ -71,6 +71,31 @@ router.post('/api/v1/createOrg', async function (req, res, next) {
   }
 });
 
+router.post('/api/v1/orgLogin', async function (req, res, next) {
+  const valid = check(req.body, ['email', 'password']);
+  if (!valid) {
+    res.sendStatus(400);
+    return;
+  }
+  const q = 'SELECT * FROM Orgs WHERE email = $1';
+  const response = await db.pool.query(q, [req.body.email]);
+  if (response.rowCount < 1) {
+    res.send({
+      userError: true,
+      message: "Invalid username or password"
+    });
+  }
+  const correctPassword = await bcrypt.compare(req.body.password, response.rows[0].password_hash);
+  if (correctPassword) {
+    res.send(response.rows[0]);
+  } else {
+    res.send({
+      userError: true,
+      message: "Invalid username or password"
+    });
+  }
+})
+
 router.post('/api/v1/addMember', async function (req, res, next) {
   // Check input
   const validBody = check(req.body, ['orgId', 'email', 'firstName', 'lastName']);

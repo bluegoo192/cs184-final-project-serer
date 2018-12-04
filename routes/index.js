@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 const aws = require('aws-sdk');
 const uuid = require('uuid/v4');
+const db = require('../wrappers/db.js');
+const cache = require('../wrappers/redis.js');
 
 // AWS setup
 if (process.env.CS184_AWS_KEY_ID == null || process.env.CS184_AWS_SECRET_KEY == null) {
@@ -107,10 +109,18 @@ router.post('/api/v1/addMember', async function (req, res, next) {
         userError: true,
         message: "No faces detected.  Please try again"
       });
-    } else {
-      res.send({
-        faceId: response.FaceRecords[0].Face.FaceId
-      });
+    } else {  // Success
+      // Add member to database
+      const q = 'INSERT INTO Members(face_id, org_id, email, first_name, last_name) VALUES ($1, $2, $3, $4, $5) RETURNING *';
+      const values = [
+        response.FaceRecords[0].Face.FaceId,
+        req.body.orgId,
+        req.body.email,
+        req.body.firstName,
+        req.body.lastName
+      ];
+      const response = await pool.query(q, values);
+      res.send(response.rows[0]);
     }
   } catch (err) {
     console.error(err);

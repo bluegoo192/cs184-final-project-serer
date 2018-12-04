@@ -94,6 +94,22 @@ router.post('/api/v1/orgLogin', async function (req, res, next) {
       message: "Invalid username or password"
     });
   }
+});
+
+router.post('/api/v1/createEvent', async function (req, res, next) {
+  const valid = check(req.body, ['name', 'orgId', 'startDate']);
+  if (!valid) {
+    res.sendStatus(400);
+    return;
+  }
+  const q = 'INSERT INTO Events (name, org_id, start_date) VALUES ($1, $2, to_timestamp($3)) RETURNING *';
+  try {
+    const response = await db.pool.query(q, [req.body.name, req.body.orgId, req.body.startDate]);
+    res.send(response.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.sendStatus(500);
+  }
 })
 
 router.post('/api/v1/addMember', async function (req, res, next) {

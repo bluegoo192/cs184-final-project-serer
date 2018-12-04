@@ -70,3 +70,17 @@ block content
         li name
         li email
         li password_hash
+    li
+      h4 /api/v1/createEvent
+      p Request should contain
+      ul
+        li orgId
+        li name
+        li startDate (formatted as Unix epoch.  If timestamp is incorrectly formatted you'll get a 500 response)
+      p Success response: the event's full entry in the SQL database.  JSON object with the fields:
+      ul
+        li id
+        li org_id
+        li name
+        li start_date (will be formatted as ISO date)
+        li end_date

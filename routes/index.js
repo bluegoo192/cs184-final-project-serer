@@ -110,7 +110,23 @@ router.post('/api/v1/createEvent', async function (req, res, next) {
     console.error(err);
     res.sendStatus(500);
   }
-})
+});
+
+router.post('/api/v1/getEvents', async function (req, res, next) {
+  const valid = check(req.body, ['orgId']);
+  if (!valid) {
+    res.sendStatus(400);
+    return;
+  }
+  const q = 'SELECT * FROM Events WHERE org_id = $1';
+  try {
+    const response = await db.pool.query(q, [req.body.orgId]);
+    res.send(response.rows);
+  } catch (err) {
+    console.error(err)
+    res.sendStatus(500);
+  }
+});
 
 router.post('/api/v1/addMember', async function (req, res, next) {
   // Check input

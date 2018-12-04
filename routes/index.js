@@ -141,7 +141,40 @@ router.post('/api/v1/markAttendance', async function (req, res, next) {
     console.error(err);
     res.sendStatus(500);
   }
-})
+});
+
+router.post('/api/v1/getEventAttendance', async function (req, res, next) {
+  const valid = check(req.body, ['eventId', 'orgId'])
+  if (!valid) {
+    res.sendStatus(400);
+    return;
+  }
+  const q = 'SELECT (Members.email, Members.first_name, Members.last_name, Members.id) FROM Members, Attendance WHERE Attendance.member_id = Members.id and Attendance.event_id = $1';
+  try {
+    const response = await db.pool.query({
+      text: q,
+      values: [req.body.eventId],
+      rowMode: 'array',
+    });
+    // Clean the response cuz for some reason postgres returns it as a string here
+    const ret = [];
+    response.rows.forEach(row => {
+      let cleanString = row[0].substring(0, row[0].length - 1);
+      cleanString = cleanString.substring(1, cleanString.length);
+      const values = cleanString.split(',');
+      ret.push({
+        email: values[0],
+        first_name: values[1],
+        last_name: values[2],
+        member_id: values[3]
+      });
+    });
+    res.send(ret);
+  } catch (err) {
+    console.error(err);
+    res.sendStatus(500);
+  }
+});
 
 router.post('/api/v1/addMember', async function (req, res, next) {
   // Check input

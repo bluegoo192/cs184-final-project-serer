@@ -20,6 +20,8 @@ block content
       p Request should contain
       ul
         li a file called 'face', sent as form-data
+        li orgId
+      p Please note: if orgId is invalid you will get 500 response.  If the are multiple members in the same org with the same face, only the first will be returned.
       p Success Response
       ul
         li right now, just the response from Rekognition.  I'll update this soon

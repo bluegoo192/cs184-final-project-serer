@@ -153,7 +153,7 @@ router.post('/api/v1/addMember', async function (req, res, next) {
 
 router.post('/api/v1/checkFace', async function (req, res, next) {
   // Check input
-  if (!req.files || !req.files.face || !req.files.face.data) {
+  if (!req.files || !req.files.face || !req.files.face.data || !req.body.orgId) {
     res.sendStatus(400);
     return;
   }
@@ -185,13 +185,32 @@ router.post('/api/v1/checkFace', async function (req, res, next) {
     },
     MaxFaces: 10
   };
-  rekognition.searchFacesByImage(params, function (err, data) {
+  rekognition.searchFacesByImage(params, async function (err, data) {
     if (err) {
       res.sendStatus(500);
       console.log(err);
     } else {
       console.log(data);
-      res.send(data);
+      let where = '(';
+      let counter = 1;
+      const values = [];
+      data.FaceMatches.forEach(match => {
+        where = where + '$' + counter + ',';
+        counter++;
+        values.push(match.Face.FaceId)
+      });
+      where = where.substring(0, where.length - 1) + ')';
+      values.push(req.body.orgId);
+      const q = 'SELECT * FROM Members WHERE face_id in '+where+" and org_id = $"+counter;
+      const dbResponse = await db.pool.query(q, values);
+      if (dbResponse.rowCount === 0) {
+        res.send({
+          userError: true,
+          message: "No member found with that face in this org"
+        });
+        return;
+      }
+      res.send(dbResponse.rows[0]);
     }
   })
 

@@ -90,3 +90,13 @@ block content
       ul
         li orgId
       p Success response: a JSON-formatted array of events (following the format specified earlier)
+    li
+      h4 /api/v1/markAttendance
+      p Request should contain
+      ul
+        li memberId
+        li eventId
+      p Success response: the attendance entry.  JSON object with the fields:
+      ul
+        li member_id
+        li event_id

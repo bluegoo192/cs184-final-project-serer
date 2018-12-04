@@ -128,6 +128,21 @@ router.post('/api/v1/getEvents', async function (req, res, next) {
   }
 });
 
+router.post('/api/v1/markAttendance', async function (req, res, next) {
+  const valid = check(req.body, ['memberId', 'eventId']);
+  if (!valid) {
+    res.sendStatus(400);
+    return;
+  }
+  const q = 'INSERT INTO Attendance (member_id, event_id) VALUES ($1, $2) RETURNING *';
+  try {
+    res.send((await db.pool.query(q, [req.body.memberId, req.body.eventId])).rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.sendStatus(500);
+  }
+})
+
 router.post('/api/v1/addMember', async function (req, res, next) {
   // Check input
   const validBody = check(req.body, ['orgId', 'email', 'firstName', 'lastName']);

@@ -307,6 +307,7 @@ router.post('/api/v1/checkFace', async function (req, res, next) {
       where = where.substring(0, where.length - 1) + ')';
       values.push(req.body.orgId);
       const q = 'SELECT * FROM Members WHERE face_id in '+where+" and org_id = $"+counter;
+      console.log(q);
       const dbResponse = await db.pool.query(q, values);
       if (dbResponse.rowCount === 0) {
         res.send({

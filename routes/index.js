@@ -293,6 +293,13 @@ router.post('/api/v1/checkFace', async function (req, res, next) {
   };
   rekognition.searchFacesByImage(params, async function (err, data) {
     if (err) {
+      if (err.retryable == false) {
+        res.send({
+          userError: true,
+          message: err.message
+        });
+        return;
+      }
       res.sendStatus(500);
       console.log(err);
     } else {

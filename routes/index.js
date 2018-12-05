@@ -298,7 +298,7 @@ router.post('/api/v1/checkFace', async function (req, res, next) {
       let where = '(';
       let counter = 1;
       const values = [];
-      if (data.faceMatches.length == 0) {
+      if (data.FaceMatches.length == 0) {
         res.send({
           userError: true,
           message: "No member found with that face in this org"

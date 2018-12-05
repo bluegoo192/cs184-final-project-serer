@@ -295,10 +295,16 @@ router.post('/api/v1/checkFace', async function (req, res, next) {
       res.sendStatus(500);
       console.log(err);
     } else {
-      console.log(data);
       let where = '(';
       let counter = 1;
       const values = [];
+      if (data.faceMatches.length == 0) {
+        res.send({
+          userError: true,
+          message: "No member found with that face in this org"
+        });
+        return;
+      }
       data.FaceMatches.forEach(match => {
         where = where + '$' + counter + ',';
         counter++;
@@ -307,7 +313,6 @@ router.post('/api/v1/checkFace', async function (req, res, next) {
       where = where.substring(0, where.length - 1) + ')';
       values.push(req.body.orgId);
       const q = 'SELECT * FROM Members WHERE face_id in '+where+" and org_id = $"+counter;
-      console.log(q);
       const dbResponse = await db.pool.query(q, values);
       if (dbResponse.rowCount === 0) {
         res.send({

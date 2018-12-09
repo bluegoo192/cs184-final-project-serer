@@ -195,6 +195,8 @@ router.post('/api/v1/getEventAttendance', async function (req, res, next) {
 });
 
 router.post('/api/v1/addMember', async function (req, res, next) {
+  console.log("SOMEONE IS ADDING A MEMBER");
+  console.log(req.body);
   // Check input
   const validBody = check(req.body, ['orgId', 'email', 'firstName', 'lastName']);
   if (!req.files || !req.files.face || !req.files.face.data || !validBody) {

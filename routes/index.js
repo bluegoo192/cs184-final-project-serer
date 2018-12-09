@@ -129,17 +129,35 @@ router.post('/api/v1/getEvents', async function (req, res, next) {
 });
 
 router.post('/api/v1/markAttendance', async function (req, res, next) {
-  const valid = check(req.body, ['memberId', 'eventId']);
+  const valid = check(req.body, ['eventId']);
   if (!valid) {
     res.sendStatus(400);
     return;
   }
   const q = 'INSERT INTO Attendance (member_id, event_id) VALUES ($1, $2) RETURNING *';
-  try {
-    res.send((await db.pool.query(q, [req.body.memberId, req.body.eventId])).rows[0]);
-  } catch (err) {
-    console.error(err);
-    res.sendStatus(500);
+  if (req.body.memberId) {
+    try {
+      res.send((await db.pool.query(q, [req.body.memberId, req.body.eventId])).rows[0]);
+    } catch (err) {
+      console.error(err);
+      res.sendStatus(500);
+    }
+  } else if (req.body.email) {
+    const selectQuery = 'SELECT * FROM Members WHERE email = $1';
+    try {
+      const dbResponse = await db.pool.query(selectQuery, [req.body.email]);
+      if (dbResponse.rowCount < 1) {
+        res.send({
+          userError: true,
+          message: 'Sorry, no member was found with that email address'
+        });
+        return;
+      }
+      res.send((await db.pool.query(q, [dbResponse.rows[0].id, req.body.eventId])).rows[0]);
+    } catch (err) {
+      console.error(err);
+      res.sendStatus(500);
+    }
   }
 });
 

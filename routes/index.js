@@ -280,6 +280,8 @@ router.post('/api/v1/checkFace', async function (req, res, next) {
   // Check input
   if (!req.files || !req.files.face || !req.files.face.data || !req.body.orgId) {
     console.log("Bad params");
+    console.log("files is "+req.files);
+    console.log("body is "+req.body);
     res.sendStatus(400);
     return;
   }

@@ -164,6 +164,7 @@ router.post('/api/v1/markAttendance', async function (req, res, next) {
 router.post('/api/v1/getEventAttendance', async function (req, res, next) {
   const valid = check(req.body, ['eventId', 'orgId'])
   if (!valid) {
+    console.log(JSON.stringify(req.body));
     res.sendStatus(400);
     return;
   }
